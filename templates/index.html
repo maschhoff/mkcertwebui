@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mkcert Web-UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🔐</span>
+      <div>
+        <h1>mkcert Web-UI</h1>
+        <span class="sub">Lokale Entwicklungs-Zertifikate, bequem verwaltet</span>
+      </div>
+    </div>
+    <div class="ca-chip" id="caChip">
+      <span class="dot" id="caDot"></span>
+      <span id="caText">CA wird geprüft…</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- CA-Sektion -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Certificate Authority</h2>
+        <span class="hint">Deine lokale Root-CA für dieses System</span>
+      </div>
+      <div class="row">
+        <div class="ca-info">
+          <p><strong>Status:</strong> <span id="caStatusText">…</span></p>
+          <p><strong>rootCA.pem:</strong> <span id="caPemPath" class="mono">/certs/ca/rootCA.pem</span></p>
+        </div>
+        <div class="ca-actions">
+          <button id="downloadCa" class="btn" onclick="downloadCa()" disabled>⬇ Root-CA herunterladen</button>
+          <button id="installCa" class="btn primary" onclick="installCa()">CA installieren</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Neues Zertifikat -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Neues Zertifikat erstellen</h2>
+        <span class="hint">Für localhost, LAN und lokale Domains</span>
+      </div>
+      <form id="createForm" class="form" onsubmit="return createCert(event)">
+        <div class="field">
+          <label for="certName">Name <span class="opt">(für Datei)</span></label>
+          <input id="certName" name="name" placeholder="z.B. mein-dev" required
+                 pattern="[a-z0-9][a-z0-9._-]*" />
+        </div>
+        <div class="field">
+          <label for="hosts">Hosts / IPs</label>
+          <textarea id="hosts" name="hosts" rows="3" required
+                    placeholder="localhost&#10;127.0.0.1&#10;::1&#10;mein-projekt.local&#10;192.168.1.50">localhost
+127.0.0.1
+::1</textarea>
+          <small class="muted">Ein Host oder eine IP pro Zeile.</small>
+        </div>
+        <button type="submit" class="btn primary full">Zertifikat erstellen</button>
+      </form>
+    </section>
+
+    <!-- Bestandsliste -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Ausgestellte Zertifikate</h2>
+        <span class="hint" id="certCount">0 Dateien</span>
+      </div>
+      <div id="emptyState" class="empty">
+        Noch keine Zertifikate erstellt. 🍃
+      </div>
+      <table id="certTable" class="table" hidden>
+        <thead>
+          <tr><th>Zertifikat</th><th>Größe</th><th>Geändert</th><th></th></tr>
+        </thead>
+        <tbody id="certBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Modal: Zertifikat ergänzen / aktualisieren -->
+  <div id="editModal" class="modal-backdrop" hidden onclick="if(event.target===this)closeEdit()">
+    <div class="modal">
+      <div class="card-head">
+        <h2 id="editTitle">Zertifikat ergänzen</h2>
+        <span class="hint">Enthaltende Hosts erweitern & neu erstellen</span>
+        <button class="btn icon" onclick="closeEdit()" title="Schließen">✕</button>
+      </div>
+      <div class="form">
+        <div class="field">
+          <label>Bestehende Hosts <span class="opt">(aus dem Zertifikat gelesen)</span></label>
+          <textarea id="editExisting" rows="5" readonly class="readonly"></textarea>
+        </div>
+        <div class="field">
+          <label for="editAdd">Neue Hosts / IPs <span class="opt">hinzufügen</span></label>
+          <textarea id="editAdd" rows="3" placeholder="eine weitere-domain.local&#10;10.0.0.5"></textarea>
+          <small class="muted">Werden zusätzlich zu den bestehenden Hosts in das Zertifikat aufgenommen und das Zert. neu erstellt.</small>
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="closeEdit()">Abbrechen</button>
+          <button id="saveEdit" class="btn primary" onclick="saveEdit()">Aktualisieren & neu erstellen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

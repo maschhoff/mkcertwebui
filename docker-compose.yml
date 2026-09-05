@@ -1,0 +1,26 @@
+services:
+  mkcert-webui:
+    build: .
+    container_name: mkcert-webui
+    image: mkcert-webui:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=Europe/Berlin
+      - MKCERT_AUTO_INSTALL_CA=true
+      # Optional: Whitelist erlaubter Hosts (Komma-getrennt), leer = alle
+      #- MKCERT_ALLOWED_HOSTS=localhost,127.0.0.1,example.test
+    volumes:
+      - mkcert-ca:/certs/ca
+      - mkcert-certs:/certs/certs
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  mkcert-ca:
+  mkcert-certs:

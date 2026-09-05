@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>mkcertweb</Name>
+  <Repository>jeffcaldwellca/mkcertweb:latest</Repository>
+  <Registry>https://hub.docker.com/r/jeffcaldwellca/mkcertweb</Registry>
+  <Support>https://github.com/jeffcaldwellca/mkcertWeb</Support>
+  <Category>Tools:</Category>
+  <Overview>Web-UI fuer mkcert: lokale Entwicklungs-Zertifikate erzeugen, verwalten und herunterladen (PEM/CRT/PFX). Fertiges, gepflegtes Docker-Image - kein eigener Build noetig.</Overview>
+  <Description>Fertige, moderne Web-Oberflaeche fuer mkcert (Node.js/Express). Erzeugt und verwaltet lokal vertrauenswuerdige Zertifikate fuer localhost, LAN-IPs und eigene Domains. Download als PEM, CRT oder PFX. Docker-ready, laeuft out-of-the-box auf Port 3000.<br/><br/>Das Container-Image wird komplett von Docker Hub bezogen (jeffcaldwellca/mkcertweb) - es muss also NICHT selbst gebaut werden. Einfach installieren und starten.</Description>
+  <Privileged>false</Privileged>
+  <Requires>docker</Requires>
+  <Config Name="Web UI Port" Target="3000" Default="3000" Mode="tcp" Description="Web-UI HTTP-Port der mkcert Web-UI" Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="Zertifikate-Daten" Target="/app/certificates" Default="/mnt/user/appdata/mkcertweb/certificates" Mode="rw" Description="Ablage der erzeugten Zertifikate - Volume auf Host anlegen!" Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="App-Daten" Target="/app/data" Default="/mnt/user/appdata/mkcertweb/data" Mode="rw" Description="Interne App-Daten (Notizen + CA-Informationen). Beide Pfade duerfen dasselbe Host-Verzeichnis nutzen." Type="Path" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="PLAIN_HTTP" Target="PLAIN_HTTP" Default="true" Mode="" Description="Erzeugt und nutzt intern selbst-signierte Zertifikate fuer HTTPS-Terminierung (Standard im Container). Leave true wenn kein Reverse-Proxy TLS macht." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="ENABLE_AUTH" Target="ENABLE_AUTH" Default="false" Mode="" Description="Anmeldung aktivieren (true/false). Empfohlen true, wenn die UI netzwerkweit erreichbar ist." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="AUTH_USERNAME" Target="AUTH_USERNAME" Default="admin" Mode="" Description="Login-Benutzername" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="AUTH_PASSWORD" Target="AUTH_PASSWORD" Default="" Mode="" Description="Login-Passwort (leer = Standard admin/admin)" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="SESSION_SECRET" Target="SESSION_SECRET" Default="" Mode="" Description="Sicherer Zufalls-String fuer Sessions (empfohlen bei ENABLE_AUTH=true)" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Zeitzone" Target="TZ" Default="Europe/Berlin" Mode="" Description="Container-Zeitzone" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+</Container>
