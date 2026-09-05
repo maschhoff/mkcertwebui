@@ -104,4 +104,4 @@ Details: see `templates/README-unraid.md`
 
 ## License
 
-MIT. mkcert is © Filippo Valsorda (Mozilla), Apache-2.0/MIT.
+GPL-3.0 license. mkcert is © Filippo Valsorda (Mozilla), Apache-2.0/MIT.
