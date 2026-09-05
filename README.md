@@ -1,54 +1,54 @@
 # 🔐 mkcert Web-UI
 
-Eine **moderne Weboberfläche für [mkcert](https://github.com/FiloSottile/mkcert)**.
-Erstelle und verwalte lokale Entwicklungs-Zertifikate (für `localhost`, LAN-IPs
-und eigene Domains) bequem im Browser — plus fertiges Dockerfile & Unraid-Template.
+A **modern web interface for [mkcert](https://github.com/FiloSottile/mkcert)**.
+Create and manage local development certificates (for `localhost`, LAN IPs,
+and custom domains) conveniently from your browser — with a ready-to-use Dockerfile & Unraid template.
 
-## Screenshot-Funktionen
+## Features
 
-- **CA-Verwaltung** – Status anzeigen, Root-CA installieren **& direkt herunterladen**
-- **Zertifikate erstellen** – Name + Hosts/IPs, ein Zertifikat pro Klick
-- **Übersicht & Löschen** – alle ausgestellten Dateien mit Größe & Zeit
-- **Modernes Dark Design** – responsiv, keine externen Frameworks
+* **CA Management** – view status, install **& directly download** the Root CA
+* **Create Certificates** – enter a name + hosts/IPs and create a certificate with one click
+* **Overview & Deletion** – view all issued files with size & timestamp
+* **Modern Dark Design** – responsive, no external frameworks
 
-## Technik
+## Technology
 
-| Schicht | Technologie |
-|--------|-------------|
-| Backend | Python 3 + Flask |
-| Frontend | Vanilla JS + CSS (kein Build-Schritt) |
-| Zertifikate | mkcert (statisches Binary) |
-| Container | Debian-/Python-Slim, nicht-root, Healthcheck |
+| Layer        | Technology                                |
+| ------------ | ----------------------------------------- |
+| Backend      | Python 3 + Flask                          |
+| Frontend     | Vanilla JS + CSS (no build step)          |
+| Certificates | mkcert (static binary)                    |
+| Container    | Debian/Python Slim, non-root, healthcheck |
 
-## Verzeichnisstruktur
+## Directory Structure
 
-```
+```text
 mkcert-webui/
-├── app.py                # Flask-Backend (REST-API)
+├── app.py                # Flask backend (REST API)
 ├── requirements.txt
 ├── Dockerfile
 ├── .dockerignore
 ├── templates/
-│   ├── index.html        # Web-Oberfläche
-│   ├── mkcert-webui.xml  # Unraid-Template
+│   ├── index.html        # Web interface
+│   ├── mkcert-webui.xml  # Unraid template
 │   └── README-unraid.md
 ├── static/
 │   ├── style.css
 │   └── app.js
 └── scripts/
-    └── entrypoint.sh     # Container-Start (legt CA an)
+    └── entrypoint.sh     # Container startup (creates CA)
 ```
 
-## Schnellstart (lokal, ohne Docker)
+## Quick Start (Local, without Docker)
 
 ```bash
-# mkcert installieren (empfohlen via https://github.com/FiloSottile/mkcert)
+# Install mkcert (recommended via https://github.com/FiloSottile/mkcert)
 pip install -r requirements.txt
 MKCERT_CAROOT=/tmp/mkcert-ca MKCERT_CERT_DIR=/tmp/mkcert-certs python3 app.py
 # → http://localhost:8080
 ```
 
-## Docker-Build & Start
+## Docker Build & Start
 
 ```bash
 cd mkcert-webui
@@ -62,46 +62,46 @@ docker run -d --name mkcert-webui \
 # → http://localhost:8080
 ```
 
-or use knex666/mkcertwebui:latest 
+or use `knex666/mkcertwebui:latest`
 
-> **Hinweis zu mkcert im Container:** Die Root-CA (`rootCA.pem` + `rootCA-key.pem`)
-> werden im Volume `/certs/ca` abgelegt. Damit Browser/Systeme diesen Zertifikaten
-> vertrauen, muss genau diese `rootCA.pem` auf den jeweiligen Client-Systemen in
-> den Trust-Store importiert werden (`mkcert -install` auf dem Host, oder im
-> Container kein System-Trust möglich). Die Dateien sind dauerhaft gesichert.
+> **Note about mkcert inside the container:** The Root CA (`rootCA.pem` + `rootCA-key.pem`)
+> is stored in the `/certs/ca` volume. For browsers/systems to trust certificates
+> issued by this CA, the exact same `rootCA.pem` must be imported into the trust store
+> on each client system (`mkcert -install` on the host, or note that system trust
+> installation is not possible from inside the container). The files are persistently stored.
 
 ## Unraid
 
-1. `templates/mkcert-webui.xml` in
-   `/boot/config/plugins/community.applications/templates/` legen
-2. In Unraid unter **Apps** → **mkcert-webui** suchen & installieren
-3. Netzwerk-/Pfadangaben prüfen → Starten → `http://<UNRAID-IP>:8080`
+1. Place `templates/mkcert-webui.xml` in
+   `/boot/config/plugins/community.applications/templates/`
+2. In Unraid, go to **Apps** → search for **mkcert-webui** and install it
+3. Check the network/path settings → Start → `http://<UNRAID-IP>:8080`
 
-Details: siehe `templates/README-unraid.md`
+Details: see `templates/README-unraid.md`
 
-## Umgebungsvariablen
+## Environment Variables
 
-| Variable | Standard | Beschreibung |
-|----------|----------|--------------|
-| `PORT` | `8080` | HTTP-Port der Web-UI |
-| `MKCERT_CAROOT` | `/certs/ca` | Ablage der Root-CA |
-| `MKCERT_CERT_DIR` | `/certs/certs` | Ausgestellte Zertifikate |
-| `MKCERT_AUTO_INSTALL_CA` | `true` | CA beim Start automatisch anlegen |
-| `MKCERT_ALLOWED_HOSTS` | *(leer)* | Komma-getrennte Host-Whitelist (leer = alle) |
+| Variable                 | Default        | Description                                  |
+| ------------------------ | -------------- | -------------------------------------------- |
+| `PORT`                   | `8080`         | HTTP port of the Web UI                      |
+| `MKCERT_CAROOT`          | `/certs/ca`    | Root CA storage location                     |
+| `MKCERT_CERT_DIR`        | `/certs/certs` | Issued certificates                          |
+| `MKCERT_AUTO_INSTALL_CA` | `true`         | Automatically create the CA on startup       |
+| `MKCERT_ALLOWED_HOSTS`   | *(empty)*      | Comma-separated host whitelist (empty = all) |
 
-## REST-API
+## REST API
 
-| Methode | Pfad | Zweck |
-|---------|------|-------|
-| GET | `/api/ca` | CA-Status |
-| POST | `/api/ca/install` | CA installieren / anlegen |
-| GET | `/api/ca/download` | 🔽 Root-CA (`rootCA.pem`) herunterladen |
-| GET | `/api/ca/key/download` | Root-CA-Key (`rootCA-key.pem`) — nur mit `MKCERT_ALLOW_KEY_DOWNLOAD=true` |
-| GET | `/api/certs` | Zertifikate auflisten |
-| POST | `/api/certs/create` | Zertifikat erstellen `{name, hosts[]}` |
-| DELETE | `/api/certs/<name>` | Zertifikat löschen |
-| GET | `/health` | Healthcheck |
+| Method | Path                   | Purpose                                                                     |
+| ------ | ---------------------- | --------------------------------------------------------------------------- |
+| GET    | `/api/ca`              | CA status                                                                   |
+| POST   | `/api/ca/install`      | Install / create CA                                                         |
+| GET    | `/api/ca/download`     | 🔽 Download Root CA (`rootCA.pem`)                                          |
+| GET    | `/api/ca/key/download` | Root CA key (`rootCA-key.pem`) — only with `MKCERT_ALLOW_KEY_DOWNLOAD=true` |
+| GET    | `/api/certs`           | List certificates                                                           |
+| POST   | `/api/certs/create`    | Create certificate `{name, hosts[]}`                                        |
+| DELETE | `/api/certs/<name>`    | Delete certificate                                                          |
+| GET    | `/health`              | Healthcheck                                                                 |
 
-## Lizenz
+## License
 
-MIT. mkcert ist © Filippo Valsorda (Mozilla), Apache-2.0/MIT.
+MIT. mkcert is © Filippo Valsorda (Mozilla), Apache-2.0/MIT.
